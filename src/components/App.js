@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 
 import './App.css';
 
+import axios from 'axios'
 import Header from './Header/Header';
 import Compose from './Compose/Compose';
+import Post from './Post/Post'
 
 class App extends Component {
   constructor() {
@@ -19,19 +21,40 @@ class App extends Component {
   }
   
   componentDidMount() {
-
+    axios.get('https://practiceapi.devmountain.com/api/posts')
+      .then(res => {
+        this.setState({
+          posts: res.data
+        })
+      })
+      .catch(() => alert("Posts didn't import"))
   }
 
-  updatePost() {
-  
+  updatePost(id, text) {
+    axios.put(`https://practiceapi.devmountain.com/api/posts?id=${id}`, {text})
+      .then( results => {
+        this.setState({
+          posts: results.data
+        })
+      })
   }
 
-  deletePost() {
-
+  deletePost(id) {
+    axios.delete(`https://practiceapi.devmountain.com/api/posts?id=${id}`)
+      .then(results => {
+        this.setState({
+          posts: results.data
+        })
+      })
   }
 
-  createPost() {
-
+  createPost(text) {
+    axios.post(`https://practiceapi.devmountain.com/api/posts`, {text})
+      .then( results => {
+        this.setState({
+          posts: results.data
+        })
+      })
   }
 
   render() {
@@ -43,7 +66,23 @@ class App extends Component {
 
         <section className="App__content">
 
-          <Compose />
+          <Compose 
+          createPostFn={this.createPost}
+          />
+
+          {
+            posts.map( post => (
+              <Post key={post.id}
+                    text={post.text}
+                    date={post.date}
+                    id={post.id}
+                    updatePostFn={this.updatePost}
+                    deletePostFn={this.deletePost}
+                    
+              />
+            ))
+          }
+
           
         </section>
       </div>
